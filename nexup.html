@@ -1,0 +1,1088 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>NexUp</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,800&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+/* ---------- Design tokens (change colors/fonts here) ---------- */
+:root{
+  --bg:#F4F6FB; --surface:#fff; --ink:#111A3A; --muted:#5A6482; --line:#E3E7F1;
+  --brand:#2447F5; --brand-ink:#fff; --brand-soft:#E8ECFF; --spark:#FFC72C;
+  --tech:#2447F5; --design:#D6336C; --sea:#0B8A83; --data:#7A4DDB;
+  --radius:20px; --font-head:"Bricolage Grotesque","Trebuchet MS",system-ui,sans-serif;
+  --font:"DM Sans",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  box-sizing:border-box; padding-top:env(safe-area-inset-top,0px);
+}
+@media (prefers-color-scheme:dark){
+  :root:not([data-theme="light"]){--bg:#0C1226;--surface:#161D38;--ink:#F1F4FF;--muted:#A3ADCB;--line:#26305A;--brand:#5B7BFF;--brand-soft:#1E2850;--brand-ink:#0C1226}
+}
+:root[data-theme="dark"]{--bg:#0C1226;--surface:#161D38;--ink:#F1F4FF;--muted:#A3ADCB;--line:#26305A;--brand:#5B7BFF;--brand-soft:#1E2850;--brand-ink:#0C1226}
+*{box-sizing:border-box;margin:0}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{background:var(--bg);color:var(--ink);font:400 16px/1.5 var(--font);-webkit-tap-highlight-color:transparent}
+h1,h2,h3{font-family:var(--font-head);line-height:1.15;letter-spacing:-.02em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+:focus-visible{outline:3px solid var(--brand);outline-offset:2px}
+
+/* ---------- Layout ---------- */
+#app{max-width:520px;margin:0 auto;min-height:100vh}
+.screen{display:none;padding:20px 20px 110px}
+.screen.active{display:block;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+@media (prefers-reduced-motion:reduce){.screen.active{animation:none}}
+.stack>*+*{margin-top:14px}
+.section-title{font-size:19px;margin:28px 0 12px}
+.muted{color:var(--muted)}
+.small{font-size:14px}
+.tag{display:inline-block;font-size:12px;font-weight:700;padding:3px 10px;border-radius:99px;background:var(--brand-soft);color:var(--brand)}
+.demo{background:#FFF4CC;color:#5B4500;border-radius:12px;padding:10px 14px;font-size:14px}
+
+/* ---------- Buttons & cards ---------- */
+.btn{display:block;width:100%;min-height:52px;padding:14px 20px;border-radius:16px;font-weight:700;text-align:center;transition:transform .1s}
+.btn:active{transform:scale(.98)}
+.btn-primary{background:var(--brand);color:var(--brand-ink)}
+.btn-secondary{background:var(--surface);border:2px solid var(--line)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px}
+.action-card{display:block;width:100%;text-align:left}
+.action-card.main{background:var(--brand);color:var(--brand-ink);border-color:var(--brand)}
+.action-card h3{font-size:20px;margin-bottom:4px}
+.action-card p{font-size:15px;opacity:.85}
+
+/* ---------- Welcome ---------- */
+#welcome{min-height:100vh;padding:28px 24px;flex-direction:column;justify-content:space-between}
+#welcome.active{display:flex}
+.logo{display:inline-flex;align-items:center;gap:10px;font:800 26px var(--font-head);letter-spacing:-.03em}
+.logo svg{width:34px;height:34px}
+.hero h1{font-size:clamp(38px,11vw,54px);font-weight:800;margin-bottom:16px}
+.hero p{font-size:18px;color:var(--muted);max-width:32ch}
+.welcome-actions{display:grid;gap:12px}
+
+/* ---------- Home / Explore ---------- */
+.greet h1{font-size:30px;font-weight:800}
+.hscroll{display:flex;gap:12px;overflow-x:auto;margin:0 -20px;padding:0 20px 4px;scroll-snap-type:x mandatory}
+.mini{min-width:180px;scroll-snap-align:start}
+.mini b{display:block;margin:6px 0 2px}
+.bar{height:10px;border-radius:99px;background:var(--brand-soft);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--brand);border-radius:99px}
+.search{width:100%;min-height:52px;padding:0 16px;border-radius:16px;border:2px solid var(--line);background:var(--surface);color:var(--ink);font:inherit}
+.cats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.cat{text-align:left;border-radius:var(--radius);padding:16px;background:var(--surface);border:2px solid var(--line);min-height:88px}
+.cat[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft)}
+.cat b{display:block;font-family:var(--font-head);font-size:17px}
+.career{display:flex;gap:14px;align-items:center}
+.tile{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;color:#fff;font:800 16px var(--font-head)}
+.career .grow{flex:1;min-width:0}
+.career b{display:block;font-family:var(--font-head);font-size:17px}
+.save{flex:none;width:44px;height:44px;border-radius:12px;display:grid;place-items:center;color:var(--muted)}
+.save[aria-pressed="true"]{color:var(--brand);background:var(--brand-soft)}
+.save svg{width:22px;height:22px}
+
+/* ---------- Progress / My NexUp ---------- */
+.big{font:800 44px var(--font-head)}
+.list{list-style:none;padding:0}
+.list li{display:flex;gap:12px;align-items:center;padding:12px 0;border-top:1px solid var(--line)}
+.list li:first-child{border-top:0}
+.dot{flex:none;width:24px;height:24px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:13px}
+.dot.done{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.avatar{width:64px;height:64px;border-radius:50%;background:var(--spark);color:#111A3A;display:grid;place-items:center;font:800 26px var(--font-head)}
+.row{display:flex;justify-content:space-between;align-items:center;width:100%;min-height:52px;text-align:left}
+
+/* ---------- Bottom navigation ---------- */
+#nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;display:none;
+  background:var(--surface);border-top:1px solid var(--line);padding:6px 8px calc(6px + env(safe-area-inset-bottom,0px))}
+#nav.show{display:grid;grid-template-columns:repeat(4,1fr)}
+#nav button{display:flex;flex-direction:column;align-items:center;gap:2px;min-height:56px;justify-content:center;
+  font-size:12px;font-weight:700;color:var(--muted);border-radius:14px}
+#nav svg{width:24px;height:24px}
+#nav button[aria-current="page"]{color:var(--brand)}
+
+/* ---------- Build 2: assessment, results, career detail ---------- */
+[hidden]{display:none!important}
+.back{width:44px;height:44px;margin-left:-8px;border-radius:12px;display:grid;place-items:center}
+.back svg{width:24px;height:24px}
+.a-head{display:flex;align-items:center;gap:6px;margin-bottom:12px}
+.a-head h1{font-size:22px;font-weight:800}
+.a-count{display:block;margin-bottom:8px;font-weight:700}
+#q-bar{transition:width .3s}
+#q-body{margin-top:26px}
+#q-body.in{animation:slide .25s ease}
+@keyframes slide{from{opacity:0;transform:translateX(16px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){#q-body.in{animation:none}#q-bar{transition:none}}
+#q-body h2{font-size:25px;font-weight:800;margin-bottom:6px}
+#q-body .hint{margin-bottom:16px}
+#q-body h2+.opts{margin-top:18px}
+.opts{display:grid;gap:10px}
+.opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;min-height:60px;padding:14px 16px;border-radius:16px;background:var(--surface);border:2px solid var(--line);font-weight:500}
+.opt[aria-pressed="true"]{border-color:var(--brand);background:var(--brand-soft);font-weight:700}
+.mark{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--line)}
+.mark.sq{border-radius:6px}
+.opt[aria-pressed="true"] .mark{background:var(--brand);border-color:var(--brand);box-shadow:inset 0 0 0 4px var(--brand-soft)}
+.a-foot{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:520px;padding:12px 20px calc(12px + env(safe-area-inset-bottom,0px));background:var(--bg);border-top:1px solid var(--line)}
+.err{color:#D92D33;font-weight:700;font-size:14px;margin-bottom:8px;text-align:center}
+.result{border-width:2px}
+.result.top{border-color:var(--brand)}
+.r-head{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;margin-bottom:10px}
+.r-head h3{font-size:21px;margin-bottom:6px}
+.pct{font:800 32px/1 var(--font-head);text-align:right}
+.pct small{display:block;font:500 12px var(--font);color:var(--muted);margin-top:2px}
+.result.top .pct{color:var(--brand)}
+.result .bar{margin-bottom:12px}
+.why{padding-left:20px;margin:4px 0 14px}
+#home-result:empty{display:none}
+.open{text-align:left}
+
+/* ---------- Build 3: career detail, trail, roadmap ---------- */
+details.acc{padding:0}
+details.acc summary{list-style:none;cursor:pointer;display:flex;justify-content:space-between;align-items:center;gap:12px;min-height:56px;padding:0 18px;font:600 17px var(--font-head)}
+details.acc summary::-webkit-details-marker{display:none}
+details.acc summary::after{content:"+";font-size:22px;color:var(--muted)}
+details.acc[open] summary::after{content:"\2212"}
+.acc-body{padding:0 18px 16px}
+.stack>details.acc+details.acc{margin-top:10px}
+.bul{padding-left:20px;margin:6px 0 10px}.bul li+li{margin-top:4px}
+.verify{font-size:13px;color:var(--muted);margin-top:8px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{padding:8px 14px;border-radius:99px;background:var(--brand-soft);color:var(--brand);font-weight:700;font-size:14px}
+button.chip{min-height:40px}
+.route{margin:8px 0 12px}
+.path{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:6px}
+.path span{background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:6px 10px;font-size:14px}
+.path i{color:var(--muted);font-style:normal}
+.segs{display:grid;grid-template-columns:1fr 1fr;gap:6px;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:4px;margin:14px 0 20px}
+.seg{min-height:44px;border-radius:10px;font-weight:700;color:var(--muted)}
+.seg.on{background:var(--brand);color:var(--brand-ink)}
+.tl{list-style:none;padding:0;position:relative}
+.tl::before{content:"";position:absolute;left:17px;top:18px;bottom:18px;width:2px;background:var(--line)}
+.step{position:relative;padding-left:48px}.step+.step{margin-top:12px}
+.num{position:absolute;left:0;top:10px;width:36px;height:36px;border-radius:50%;background:var(--brand);color:var(--brand-ink);display:grid;place-items:center;font:800 16px var(--font-head)}
+.ms{list-style:none;padding:0;margin:16px 0}
+.ms-row{display:flex;gap:12px;align-items:flex-start;padding:14px;border:1px solid var(--line);border-radius:16px;background:var(--surface)}
+.ms-row+.ms-row{margin-top:10px}
+.ms-check{flex:none;width:44px;height:44px;border-radius:50%;border:2px solid var(--line);color:transparent;font-size:20px;font-weight:800}
+.ms-row.done .ms-check{background:var(--brand);border-color:var(--brand);color:var(--brand-ink)}
+.ms-state{margin-left:auto;color:var(--muted);white-space:nowrap;font-size:13px;padding-top:2px}
+.journey h3{font-size:22px;margin:8px 0 2px}
+.journey .bar{margin:10px 0 14px}
+#home-journey:empty,#road-progress:empty{display:none}
+#road-progress{margin-bottom:14px}
+.chip[aria-pressed="true"]{background:var(--brand);color:var(--brand-ink)}
+button.chip{min-height:44px;padding:8px 18px}
+.stage{background:var(--brand-soft);border-radius:14px;padding:12px 14px}
+.next{border:2px solid var(--brand);margin-top:14px}
+.next h3{font-size:19px;margin:8px 0 4px}
+.next p+p{margin-top:6px}
+#career-body .ai-slot{margin-top:14px}
+#ai-toggle[aria-checked="true"] .tag{background:var(--brand);color:var(--brand-ink)}
+.ai-out{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
+.ai-out .tag{margin-bottom:6px}
+.ai-out p+p,.ai-out ul{margin-top:6px}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- 1. WELCOME -->
+<section class="screen" id="welcome" data-screen="welcome">
+  <div class="logo">
+    <svg viewBox="0 0 34 34" aria-hidden="true"><rect width="34" height="34" rx="10" fill="var(--brand)"/><path d="M9 25V9l16 16V9" fill="none" stroke="var(--spark)" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    NexUp
+  </div>
+  <div class="hero">
+    <h1>Figure out what's next.</h1>
+    <p>NexUp helps you explore careers and see exactly how to get there.</p>
+  </div>
+  <div class="welcome-actions">
+    <button class="btn btn-primary" data-start>Help Me Discover</button>
+    <button class="btn btn-secondary" data-go="explore">I Know My Career</button>
+  </div>
+</section>
+
+<!-- 2. HOME -->
+<section class="screen" data-screen="home">
+  <div class="greet stack">
+    <h1>Hi, ready to explore?</h1>
+    <p class="muted">NexUp shows you careers, and the steps to reach them.</p>
+  </div>
+  <div class="stack" style="margin-top:22px">
+    <div id="home-journey"></div>
+    <button class="card action-card main" data-start><h3>Help Me Discover</h3><p>Not sure what to pursue? Start here.</p></button>
+    <button class="card action-card" data-go="explore"><h3>I Know My Career</h3><p>Already have a goal? Find the route to it.</p></button>
+    <div id="home-result"></div>
+  </div>
+  <h2 class="section-title">Continue Exploring</h2>
+  <div class="hscroll">
+    <div class="card mini"><span class="tag">Technology</span><b>AI Engineer</b><span class="muted small">Placeholder</span></div>
+    <div class="card mini"><span class="tag">Design</span><b>UX/UI Designer</b><span class="muted small">Placeholder</span></div>
+    <div class="card mini"><span class="tag">Maritime</span><b>Merchant Navy</b><span class="muted small">Placeholder</span></div>
+  </div>
+  <h2 class="section-title" id="home-prog-title">Your Progress</h2>
+  <button class="card action-card" id="home-prog" data-go="progress">
+    <div class="row" style="min-height:0;margin-bottom:10px"><b>Demo roadmap</b><span class="muted small">35%</span></div>
+    <div class="bar"><i style="width:35%"></i></div>
+  </button>
+</section>
+
+<!-- 3. EXPLORE -->
+<section class="screen" data-screen="explore">
+  <h1 style="font-size:30px;font-weight:800;margin-bottom:14px">Explore Careers</h1>
+  <input class="search" id="search" type="search" placeholder="Search careers" aria-label="Search careers">
+  <h2 class="section-title">Categories</h2>
+  <div class="cats" id="cats"></div>
+  <h2 class="section-title" id="careers-title">All careers</h2>
+  <div class="stack" id="careers"></div>
+  <p class="muted small" style="margin-top:14px">Career details are placeholders for now.</p>
+</section>
+
+<!-- 4. PROGRESS -->
+<section class="screen" data-screen="progress">
+  <h1 style="font-size:30px;font-weight:800;margin-bottom:14px">Progress</h1>
+  <div id="road-progress"></div>
+  <div id="latest"></div>
+  <div class="demo" style="margin-top:14px">The roadmap, milestones and recent items below are demo data.</div>
+  <div class="card" style="margin-top:14px">
+    <span class="muted small">Current roadmap</span>
+    <div class="big">35%</div>
+    <div class="bar" style="margin:6px 0 8px"><i style="width:35%"></i></div>
+    <span class="muted small">Sample roadmap: AI Engineer</span>
+  </div>
+  <h2 class="section-title">Milestones</h2>
+  <div class="card"><ul class="list">
+    <li><span class="dot done">✓</span>Pick a career to explore</li>
+    <li><span class="dot done">✓</span>Learn the required skills</li>
+    <li><span class="dot"></span>Shortlist courses and colleges</li>
+    <li><span class="dot"></span>Plan entrance exams</li>
+  </ul></div>
+  <h2 class="section-title">Recently completed</h2>
+  <div class="card"><ul class="list">
+    <li><span class="dot done">✓</span><div>Read about AI Engineer<div class="muted small">Sample item</div></div></li>
+    <li><span class="dot done">✓</span><div>Saved a career<div class="muted small">Sample item</div></div></li>
+  </ul></div>
+</section>
+
+<!-- 5. MY NEXUP -->
+<section class="screen" data-screen="me">
+  <h1 style="font-size:30px;font-weight:800;margin-bottom:14px">My NexUp</h1>
+  <div class="card row" style="gap:16px;justify-content:flex-start">
+    <div class="avatar">S</div>
+    <div><b style="font-family:var(--font-head);font-size:19px">Student</b><div class="muted small" id="profile-class"></div></div>
+  </div>
+  <div class="card" style="margin-top:12px"><b>Your current class</b>
+    <p class="muted small" style="margin:2px 0 12px">Used only to shape your Career Trail. Saved on this device.</p>
+    <div class="chips" id="class-options" role="group" aria-label="Current class"></div></div>
+  <h2 class="section-title">Saved Careers</h2>
+  <div class="stack" id="saved"></div>
+  <h2 class="section-title">Settings</h2>
+  <div class="card">
+    <button class="row" id="theme-toggle"><span>Dark mode</span><span class="tag" id="theme-label">Auto</span></button>
+    <button class="row" id="ai-toggle" role="switch" aria-checked="false" style="border-top:1px solid var(--line)"><span>Personalised explanations</span><span class="tag" id="ai-label">Off</span></button>
+    <p class="muted small" style="padding-bottom:12px">Off by default. If you turn this on, NexUp may use an AI service to write personalised explanations from your class, your matches and your roadmap progress. No name, contact details or location are shared. Nothing is sent until you tap "Personalise this" on a card.</p>
+    <div class="row" style="border-top:1px solid var(--line)"><span>Notifications</span><span class="muted small">Coming soon</span></div>
+    <div class="row" style="border-top:1px solid var(--line)"><span>Account</span><span class="muted small">Coming soon</span></div>
+  </div>
+  <p class="muted small" style="margin-top:14px">Saved careers reset when you close the app. Saving to your account comes later.</p>
+</section>
+
+<!-- 6. ASSESSMENT (no bottom nav) -->
+<section class="screen" data-screen="assessment">
+  <div class="a-head"><button class="back" id="q-back" aria-label="Back"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button><h1>Career Discovery</h1></div>
+  <span class="a-count small" id="q-count"></span>
+  <div class="bar" role="progressbar" aria-label="Assessment progress"><i id="q-bar"></i></div>
+  <div id="q-body"></div>
+  <div class="a-foot">
+    <p class="err" id="q-error" role="alert" hidden>Pick an answer to continue. There are no wrong ones.</p>
+    <button class="btn btn-primary" id="q-next">Next</button>
+  </div>
+</section>
+
+<!-- 7. RESULTS -->
+<section class="screen" data-screen="results">
+  <h1 style="font-size:30px;font-weight:800;margin-bottom:10px">Your Career Matches</h1>
+  <p class="muted">Based on your answers, these career paths currently align most closely with your interests and preferences.</p>
+  <div class="stack" id="r-list" style="margin-top:18px"></div>
+  <p class="muted small" id="r-note" style="margin:16px 0"></p>
+  <p class="muted small" style="margin-bottom:16px">Match % is an indicator based on your responses, not a prediction of your future.</p>
+  <div class="stack"><button class="btn btn-secondary" data-start>Retake Assessment</button><button class="btn btn-primary" data-go="home">Back to Home</button></div>
+</section>
+
+<!-- 8. CAREER DETAIL -->
+<section class="screen" data-screen="career">
+  <button class="back" id="career-back" aria-label="Back" style="margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div id="career-body"></div>
+</section>
+
+<!-- 9. CAREER TRAIL + ROADMAP -->
+<section class="screen" data-screen="trail">
+  <button class="back" id="trail-back" aria-label="Back" style="margin-bottom:8px"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 5l-7 7 7 7"/></svg></button>
+  <div id="trail-body"></div>
+</section>
+
+<!-- Bottom navigation (hidden on Welcome and Assessment) -->
+<nav id="nav" aria-label="Main">
+  <button data-go="home"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>Home</button>
+  <button data-go="explore"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>Explore</button>
+  <button data-go="progress"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l6-6 4 4 8-8"/><path d="M15 7h6v6"/></svg>Progress</button>
+  <button data-go="me"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>My NexUp</button>
+</nav>
+</div>
+
+<script>
+/* =====================================================================
+   ASSESSMENT DATA + SCORING MATRIX  (edit this block to tune results)
+   Careers: AI = AI Engineer, FD = Fashion Designer, MN = Merchant Navy,
+            DS = Data Scientist, UX = UX/UI Designer
+   Each option: [answer text, "points per career", "reason shown in results"]
+   Rules used so scoring stays fair:
+   - Best-fit career gets 5, close relatives 2-4, weak links 1, else 0.
+   - Every question has exactly one 5 for each career, so every career
+     has the same maximum (50). No career wins just by having more points.
+   - Multi-select questions use the AVERAGE of the picked options.
+   ===================================================================== */
+const QUESTIONS = [
+ { dim:"Interests", text:"Which of these sounds like the best way to spend a free afternoon?", opts:[
+  ["Building an app, a game or a smart gadget","AI5 DS2 UX1 MN1","Interest in building with technology"],
+  ["Digging through numbers to find a hidden pattern","DS5 AI3","Interest in data and patterns"],
+  ["Designing an outfit, a poster or a screen that looks great","FD5 UX2","Interest in visual design"],
+  ["Talking to people to find out what they really need","UX5 FD2 DS1","Interest in understanding people"],
+  ["Travelling and working on something big and on the move","MN5 FD1","Interest in travel and dynamic work"]]},
+ { dim:"Abilities", text:"When you hit a difficult problem, what do you naturally do?", opts:[
+  ["Break it into logical steps and test each one","AI5 DS3 MN2","Logical problem solving"],
+  ["Look for numbers or evidence to see what is really going on","DS5 AI2","Evidence-based thinking"],
+  ["Try out new ideas and see what feels right","FD5 UX2 AI1","Creative experimentation"],
+  ["Put myself in someone else's shoes to understand it","UX5 FD2 MN1","Empathy for other people"],
+  ["Stay calm, follow a plan and get it done","MN5 AI1","Staying calm under pressure"]]},
+ { dim:"Interests", text:"Which task would you enjoy most?", opts:[
+  ["Teaching a computer to recognise or predict something","AI5 DS3","Curiosity about how machines learn"],
+  ["Turning a messy spreadsheet into clear insights","DS5 UX2","Making sense of information"],
+  ["Sketching a new clothing line or style","FD5 UX2","Creating original styles"],
+  ["Redesigning an app so it is easier to use","UX5 AI2 FD1","Making things easy to use"],
+  ["Helping keep a big ship or machine running safely","MN5 AI1","Interest in machines and operations"]]},
+ { dim:"School subjects", multi:true, text:"Which school subjects do you feel most comfortable with?", opts:[
+  ["Maths and Statistics","DS5 AI3","Comfort with maths"],
+  ["Computer Science or IT","AI5 DS2 UX2","Comfort with computing"],
+  ["Art, Design or Textiles","FD5 UX3","Strength in art and design"],
+  ["Physics or Geography","MN5 AI2 DS1","Strength in physics and geography"],
+  ["English, Psychology or Social Science","UX5 FD2 DS1","Strength in communication subjects"]]},
+ { dim:"Abilities", text:"How do you feel about working with computers, technology or data?", opts:[
+  ["I love it. I could code or tinker for hours","AI5 DS2 UX1","Comfort with coding and technology"],
+  ["I enjoy working with data and finding answers in it","DS5 AI2","Comfort working with data"],
+  ["I like it when it helps me create something visual","FD5 UX3","Using technology for creative work"],
+  ["I like technology that makes life simpler for people","UX5 AI1","Enjoying technology that helps people"],
+  ["I prefer hands-on, real-world work to screens","MN5 FD2","Preference for hands-on work"]]},
+ { dim:"Work preferences", text:"Which working environment sounds most appealing?", opts:[
+  ["A modern tech lab or office, building new things","AI5 DS2 UX1 MN1","Preference for a tech-focused workplace"],
+  ["A quiet, focused space with lots of information to explore","DS5 AI2 MN1","Preference for focused analytical work"],
+  ["A studio full of creative energy","FD5 UX3","Preference for a creative studio"],
+  ["A collaborative team that talks to users all the time","UX5 DS1","Preference for collaborative teamwork"],
+  ["Somewhere different all the time: ports, ships, new countries","MN5","Preference for changing places"]]},
+ { dim:"Work preferences", text:"How do you prefer to work?", opts:[
+  ["Alone, deeply focused on one hard problem","AI5 DS3 FD2","Comfort with deep, independent focus"],
+  ["Carefully, checking details until the numbers are right","DS5 AI2 MN2 FD1","Attention to detail"],
+  ["Freely, with room for my own style and ideas","FD5 UX1","Wanting room for personal style"],
+  ["In a team, sharing ideas and feedback","UX5 FD2 MN2 AI1","Enjoying teamwork and feedback"],
+  ["With clear routines, roles and responsibilities","MN5","Comfort with structure and clear roles"]]},
+ { dim:"Interests", text:"Which of these sounds more satisfying?", opts:[
+  ["Finding an answer that the evidence proves is right","DS5 AI2 MN1","Satisfaction from finding proven answers"],
+  ["Making something completely new and original","FD5 UX2","Wanting to create original work"],
+  ["Seeing something you built work smoothly for thousands of people","AI5 MN2 UX1 DS1","Satisfaction from building things that work"],
+  ["Watching someone use your design and enjoy it","UX5 FD3","Satisfaction from designs people enjoy"],
+  ["Finishing a tough, real-world mission successfully","MN5 AI1","Satisfaction from completing real missions"]]},
+ { dim:"Career path", text:"What kind of career experience appeals to you most?", opts:[
+  ["Working at the cutting edge of new technology","AI5 DS2 UX1","Appeal of cutting-edge technology"],
+  ["Being the person others trust to make decisions from data","DS5 AI1 MN1","Appeal of data-driven decision making"],
+  ["Expressing myself and building my own creative identity","FD5 UX1","Appeal of creative self-expression"],
+  ["Shaping products that millions of people use every day","UX5 AI2 FD2","Appeal of shaping everyday products"],
+  ["Adventure, travel and seeing the world while I earn","MN5","Appeal of travel and adventure"]]},
+ { dim:"Career path", text:"If you could spend a day exploring one type of work, which would you choose?", opts:[
+  ["A day in an AI lab, watching a model being trained","AI5 DS2 MN1","Curiosity about AI work"],
+  ["A day with an analyst team, answering a real question with data","DS5 AI1 MN1","Curiosity about data work"],
+  ["A day in a fashion studio before a show","FD5 UX1","Curiosity about fashion work"],
+  ["A day in a design studio, testing a new app with users","UX5 FD2 AI1","Curiosity about design and user testing"],
+  ["A day on a cargo ship, from the bridge to the engine room","MN5","Curiosity about life at sea"]]}
+];
+// Turn "AI5 DS3" into {AI:5, DS:3} once, so the UI code stays simple.
+QUESTIONS.forEach((q) => { q.opts = q.opts.map(([text, s, why]) => ({ text, why, s: Object.fromEntries(s.split(" ").map((p) => [p.slice(0, 2), +p.slice(2)])) })); });
+</script>
+<script>
+/* =====================================================================
+   CAREER TRAIL DATA  (Build 3). Structured, local, no AI-written content.
+   Facts here were checked in 2026 against official/government sources
+   (see SRC). Exam dates, fees, cut-offs and exact eligibility marks are
+   deliberately NOT stored because they change every year.
+   ===================================================================== */
+const SRC = {
+  // basis: "primary" = read on the official site itself. "secondary" = confirmed through education or
+  // government portals that quote the official source, so it should be re-checked on the official site.
+  JEE:   { name: "NTA, JEE Main", type: "Exam authority", url: "https://jeemain.nta.nic.in", basis: "secondary" },
+  JEEADV:{ name: "JEE Advanced (conducted by the IITs, not NTA)", type: "Exam authority", basis: "secondary", note: "Find the current official JEE Advanced website through the IITs or JoSAA." },
+  JOSAA: { name: "JoSAA, joint seat allocation for IITs, NITs, IIITs", type: "Counselling authority", url: "https://josaa.nic.in", basis: "secondary" },
+  CUET:  { name: "NTA, CUET (UG)", type: "Exam authority", url: "https://cuet.nta.nic.in", basis: "secondary" },
+  IITM:  { name: "IIT Madras, BS Degree admissions", type: "Institution", url: "https://onlinedegree.iitm.ac.in/admissions.html", basis: "primary" },
+  NIFT:  { name: "NTA, NIFT Entrance Exam (NIFTEE)", type: "Exam authority", url: "https://exams.nta.nic.in/niftee/", basis: "secondary" },
+  UCEED: { name: "UCEED (conducted by IIT Bombay)", type: "Exam authority", url: "https://uceed.iitb.ac.in", basis: "secondary", note: "The list of participating institutes and their Class 12 subject rules change every year. Read the current brochure." },
+  NID:   { name: "National Institute of Design", type: "Institution", url: "https://www.nid.edu", basis: "secondary" },
+  IMU:   { name: "Indian Maritime University", type: "Institution", url: "https://www.imu.edu.in", basis: "primary" },
+  DGS:   { name: "Directorate General of Shipping (DG Shipping)", type: "Regulator", url: "https://www.dgshipping.gov.in", basis: "primary", note: "Its certification pages also appear under the name Directorate General of Maritime Administration (dgma.gov.in)." },
+};
+const CHECK = "Check the official website for current eligibility and deadlines.";
+const TRAILS = {
+ AI: {
+  overview: "AI engineers build software that learns from data, such as tools that recognise images, understand language or make predictions.",
+  involves: ["Prepare data and train machine-learning models","Test models and improve how well they work","Turn models into apps or services people can use","Work with software, data and product teams"],
+  skills: ["Programming (Python is widely used)","Maths: algebra, probability and statistics","Logical problem solving","Machine-learning basics","Explaining ideas clearly"],
+  subjects: ["Mathematics","Computer Science or Informatics Practices, if your school offers it","Physics","English"],
+  foundation: ["Get comfortable with school-level maths","Try beginner programming and small puzzles","Read about real AI tools and how they are used"],
+  education: ["B.Tech in Computer Science or a related branch (some institutes offer AI-focused programmes)","BCA or B.Sc in Computer Science, with further study later if you wish","BS in Data Science and Applications (IIT Madras, online) as a data and machine-learning foundation"],
+  entrance: [
+   {n:"JEE Main",d:"Conducted by NTA. Used for B.Tech at NITs, IIITs and other government-funded technical institutes (seats through JoSAA). It is also the first step towards JEE Advanced."},
+   {n:"JEE Advanced",d:"Conducted by the IITs. Needed for IIT B.Tech, and IIT seats are also allotted through JoSAA."},
+   {n:"CUET (UG)",d:"A common test by NTA that many universities use. Each university sets its own criteria."},
+   {n:"IIT Madras BS qualifier",d:"Not JEE. It is a short online course plus an exam, open after Class 12."}],
+  institutions: [{n:"IITs, NITs and IIITs (through JoSAA)",k:"Institutions"},{n:"IIT Madras BS Degree (online)",k:"Institution"},{n:"Universities that accept CUET (UG)",k:"Institutions"}],
+  routes: [
+   {label:"Primary route",path:["School with Maths","B.Tech in CS or related","Projects and internships","Junior AI/ML role"]},
+   {label:"Other route",path:["School","BCA / B.Sc CS or IIT Madras BS","Projects and online learning","Entry role, then further study if wanted"]}],
+  buildSkills: ["Build 2 or 3 small projects, for example a model trained on a public dataset","Put your code online and explain what you learned","Take a structured beginner course in machine learning","Join a hackathon or coding club"],
+  earlyRoles: ["Junior machine-learning or AI engineer","Software developer working with data","Research or data assistant"],
+  progression: ["Senior AI / ML engineer","Specialise in an area such as language, vision or robotics","Higher study (M.Tech, MS, PhD) for research-heavy roles"],
+  related: ["Data Scientist","Software Developer","Robotics Engineer"],
+  earnings: "Pay in this field depends a lot on the role, employer, city and your skills.",
+  roadmap: [
+   {id:"foundation",t:"Build your foundation",d:"Strengthen school maths and try beginner programming.",s:"School"},
+   {id:"explore",t:"See AI in practice",d:"Read about real AI projects and try one small beginner tutorial.",s:"School"},
+   {id:"routes",t:"Compare education routes",d:"Look at B.Tech, BCA/B.Sc and IIT Madras BS on their official sites.",s:"Education"},
+   {id:"exams",t:"Plan your entrance exams",d:"Note which exams your shortlisted routes use and where their official dates are posted.",s:"Admission"},
+   {id:"project",t:"Build a first project",d:"Make one small project and share it online with a short write-up.",s:"Skills"},
+   {id:"experience",t:"Gain experience",d:"Look for internships, hackathons or open-source work once you are in a course.",s:"Career"}],
+  src: ["JEE","JEEADV","JOSAA","CUET","IITM"]},
+ DS: {
+  overview: "Data scientists use statistics, programming and subject knowledge to turn data into answers that help people make decisions.",
+  involves: ["Collect and clean data","Look for patterns and test ideas with statistics","Show findings with charts and simple explanations","Sometimes build prediction models"],
+  skills: ["Statistics and probability","Programming (Python and SQL are common)","Cleaning and visualising data","Asking good questions","Explaining findings simply"],
+  subjects: ["Mathematics","Economics or Statistics, if offered","Computer Science or Informatics Practices, if offered","English"],
+  foundation: ["Get comfortable with school maths and basic statistics","Practise reading charts and tables critically","Try a spreadsheet project on data you care about"],
+  education: ["B.Tech in Computer Science or a related branch","B.Sc in Statistics, Mathematics or Data Science, with an M.Sc later if you wish","BS in Data Science and Applications (IIT Madras, online)"],
+  entrance: [
+   {n:"JEE Main / JEE Advanced with JoSAA",d:"For B.Tech at NITs, IIITs and IITs. Seats are allotted through JoSAA."},
+   {n:"CUET (UG)",d:"Used by many universities for B.Sc and similar programmes. Each university sets its own criteria."},
+   {n:"IIT Madras BS qualifier",d:"Open after Class 12 from any stream. IIT Madras asks for Mathematics and English studied up to Class 10."}],
+  institutions: [{n:"IITs, NITs and IIITs (through JoSAA)",k:"Institutions"},{n:"IIT Madras BS Degree (online)",k:"Institution"},{n:"Universities that accept CUET (UG)",k:"Institutions"}],
+  routes: [
+   {label:"Primary route",path:["School with Maths","B.Tech CS or B.Sc Statistics / Data Science","Projects and internships","Junior analyst or data role"]},
+   {label:"Other route",path:["School, any stream","IIT Madras BS Degree (online)","Projects on real data","Data analyst role"]}],
+  buildSkills: ["Analyse a public dataset and write up what you found","Learn SQL and one programming language","Make a small dashboard or set of charts","Compete or practise on open data challenges"],
+  earlyRoles: ["Data analyst","Junior data scientist","Business or analytics associate"],
+  progression: ["Senior data scientist","Move towards machine learning or analytics leadership","Higher study (M.Sc, M.Tech, MS) if you want research roles"],
+  related: ["AI Engineer","Statistician","Business Analyst"],
+  earnings: "Pay depends on the role, industry, employer and your skills.",
+  roadmap: [
+   {id:"foundation",t:"Build your foundation",d:"Strengthen school maths and get comfortable with basic statistics.",s:"School"},
+   {id:"explore",t:"Try a small data project",d:"Use a spreadsheet to answer one question with real data.",s:"School"},
+   {id:"routes",t:"Compare education routes",d:"Look at B.Tech, B.Sc Statistics/Data Science and IIT Madras BS on official sites.",s:"Education"},
+   {id:"exams",t:"Plan your entrance exams",d:"Note which exams your shortlisted routes use and where their official dates are posted.",s:"Admission"},
+   {id:"project",t:"Analyse real data",d:"Finish one analysis using a public dataset and write a short summary.",s:"Skills"},
+   {id:"experience",t:"Gain experience",d:"Look for internships or data competitions once you are in a course.",s:"Career"}],
+  src: ["JEE","JEEADV","JOSAA","CUET","IITM"]},
+ UX: {
+  overview: "UX/UI designers shape how apps and websites look and work, so that they are easy and enjoyable to use.",
+  involves: ["Talk to users to understand their needs","Sketch screens and flows","Build clickable prototypes","Test designs and improve them"],
+  skills: ["Visual design basics","Understanding users (research, interviews)","Wireframing and prototyping tools (for example Figma)","Teamwork and clear communication"],
+  subjects: ["Art or Design, if offered","English","Psychology or Social Science, if offered","Computer basics","Some UCEED institutes ask for Physics, Chemistry and Maths in Class 12 and others accept any stream, so check each one"],
+  foundation: ["Notice what makes apps easy or frustrating to use","Practise sketching ideas on paper","Try a free design tool and copy a screen you like"],
+  education: ["B.Des (4 years) in a design field such as visual communication, interaction or product design (programme names differ by institute)","A degree in another field (for example BCA or B.Tech) plus design skills and a portfolio"],
+  entrance: [
+   {n:"UCEED",d:"Conducted by IIT Bombay for B.Des at participating institutes. The institutes taking part, and the Class 12 subjects each one asks for, are set in the official brochure and change over time."},
+   {n:"NID DAT",d:"National Institute of Design's aptitude test, with prelims and mains stages."},
+   {n:"Other institutes",d:"Some institutes accept UCEED or NID DAT scores or run their own tests. Check each one."}],
+  institutions: [{n:"Examples: IIT Bombay, IIT Delhi, IIT Guwahati, IIT Hyderabad, IIITDM Jabalpur",k:"take part in UCEED. The full current list is in the official brochure"},{n:"National Institute of Design (NID)",k:"Institution"}],
+  routes: [
+   {label:"Primary route",path:["School","B.Des through UCEED or NID DAT","Portfolio and internships","Junior UX/UI role"]},
+   {label:"Other route",path:["School","Another relevant degree (BCA, B.Tech and others)","Design courses and a portfolio","Junior UX/UI role"]}],
+  buildSkills: ["Build a portfolio with 3 case studies","Redesign one app you use and explain your choices","Learn a prototyping tool","Get feedback from real users"],
+  earlyRoles: ["Junior UI or UX designer","Design intern","Visual designer"],
+  progression: ["Senior or lead designer","Specialise in UX research, interaction or product design","Design management"],
+  related: ["Fashion Designer","Product Designer","Graphic Designer"],
+  earnings: "Pay depends on the role, employer, city and the strength of your portfolio.",
+  roadmap: [
+   {id:"foundation",t:"Build your design eye",d:"Notice what makes apps easy to use and sketch your own ideas.",s:"School"},
+   {id:"explore",t:"Try a design tool",d:"Recreate one screen you like in a free tool.",s:"School"},
+   {id:"routes",t:"Compare education routes",d:"Look at B.Des programmes and other degree routes on official sites.",s:"Education"},
+   {id:"exams",t:"Plan your design exams",d:"Check UCEED, NID DAT and any institute tests, and where their dates are posted.",s:"Admission"},
+   {id:"project",t:"Start your portfolio",d:"Finish one small redesign case study with your reasoning.",s:"Skills"},
+   {id:"experience",t:"Gain experience",d:"Look for design internships or projects for real users.",s:"Career"}],
+  src: ["UCEED","NID"]},
+ FD: {
+  overview: "Fashion designers create clothing and accessories, from the first sketch and fabric choice to the finished garment.",
+  involves: ["Research trends and ideas","Sketch and develop designs","Choose fabrics, colours and details","Work with people who make and sell the garments"],
+  skills: ["Sketching and illustration","Colour and fabric sense","Creativity and observation","Basic pattern making and stitching","Presenting your ideas"],
+  subjects: ["Art or Design, if offered","English and communication (the General Ability Test covers these)","Basic maths (the General Ability Test includes quantitative questions)","Check the current official eligibility for Class 12 stream and marks"],
+  foundation: ["Keep a sketchbook and draw regularly","Learn how fabrics behave and what colours work together","Try simple stitching or upcycling a garment"],
+  education: ["B.Des in Fashion Design (4 years) at NIFT","Other NIFT B.Des programmes such as Fashion Communication, Accessory Design and Knitwear Design","Fashion or design degrees at other recognised institutes (each has its own admission process)"],
+  entrance: [
+   {n:"NIFT Entrance Exam (NIFTEE)",d:"Conducted by NTA for NIFT. For B.Des it includes a Creative Ability Test and a General Ability Test."},
+   {n:"Situation Test",d:"A hands-on model-making round for shortlisted B.Des candidates."},
+   {n:"NID DAT",d:"National Institute of Design's aptitude test for its design programmes."}],
+  institutions: [{n:"National Institute of Fashion Technology (NIFT)",k:"Institution"},{n:"National Institute of Design (NID)",k:"Institution"},{n:"Other recognised design institutes",k:"Check recognition"}],
+  routes: [
+   {label:"Primary route",path:["School","B.Des Fashion Design at NIFT","Portfolio and internships","Junior designer"]},
+   {label:"Other route",path:["School","Another recognised fashion or design degree","Portfolio and internships","Junior designer or related role"]}],
+  buildSkills: ["Build a portfolio of sketches and finished pieces","Learn pattern making and garment construction","Do an internship with a designer or label","Practise design aptitude tasks for entrance tests"],
+  earlyRoles: ["Assistant or junior designer","Design or production assistant","Stylist's assistant"],
+  progression: ["Designer, then senior designer","Lead a collection or design team","Start your own label"],
+  related: ["UX/UI Designer","Fashion Communication","Accessory Designer"],
+  earnings: "Pay depends a lot on the employer, city and your portfolio. Some designers earn through their own label.",
+  roadmap: [
+   {id:"foundation",t:"Start your sketchbook",d:"Draw regularly and collect ideas on colour, shape and fabric.",s:"School"},
+   {id:"explore",t:"Try making something",d:"Stitch or upcycle one garment to learn how clothes are built.",s:"School"},
+   {id:"routes",t:"Compare education routes",d:"Look at NIFT programmes and other recognised design degrees.",s:"Education"},
+   {id:"exams",t:"Plan your entrance tests",d:"Check NIFTEE and NID DAT on official sites and practise drawing and situation tasks.",s:"Admission"},
+   {id:"project",t:"Build a mini portfolio",d:"Finish 3 to 5 pieces that show your ideas.",s:"Skills"},
+   {id:"experience",t:"Gain experience",d:"Look for an internship or studio visit once you are in a course.",s:"Career"}],
+  src: ["NIFT","NID"]},
+ MN: {
+  overview: "Merchant Navy officers work on commercial ships that carry cargo and passengers. Deck officers navigate and manage the ship. Engineering officers run and maintain its machinery.",
+  involves: ["Deck side: navigation, cargo handling and safety","Engine side: running and repairing engines and systems","Living and working onboard for long periods","Following rules set by the Directorate General of Shipping"],
+  skills: ["Discipline and teamwork","Staying calm under pressure","Technical or navigation aptitude","Good physical health and fitness","English communication"],
+  subjects: ["Physics","Chemistry","Mathematics","English"],
+  foundation: ["Build the PCM base: Physics, Chemistry and Maths","Look after your fitness and get your eyesight checked early","Learn how ships and ports work through official maritime resources"],
+  education: ["B.Sc Nautical Science (3 years), for the deck side","B.Tech Marine Engineering (4 years), for the engine side","Diploma in Nautical Science (1 year), for candidates who meet IMU's eligibility rules"],
+  entrance: [
+   {n:"IMU-CET",d:"Conducted by Indian Maritime University. IMU states it is compulsory for DG Shipping-approved B.Tech (Marine Engineering), B.Sc (Nautical Science) and DNS at all approved institutes."},
+   {n:"Medical fitness",d:"A fitness certificate from a DG Shipping-approved doctor is required, including eyesight and colour-vision standards."},
+   {n:"Eligibility",d:"IMU lists Class 12 PCM marks, English marks and age limits. Numbers change, so read the current notice."}],
+  institutions: [{n:"Indian Maritime University (campuses)",k:"University"},{n:"DG Shipping-approved maritime training institutes",k:"Affiliated institutes"}],
+  routes: [
+   {label:"Deck route",path:["School with PCM","IMU-CET","B.Sc Nautical Science","Deck cadet at sea"]},
+   {label:"Engine route",path:["School with PCM","IMU-CET","B.Tech Marine Engineering","Trainee engineer at sea"]},
+   {label:"Shore-based maritime route",path:["School","Programmes such as IMU's BBA Logistics or MBA Port & Shipping","Roles in ports, shipping and logistics"]}],
+  buildSkills: ["Keep up your fitness and health checks","Improve your English and communication","Learn about ship types and basic seafaring safety","A passport is commonly needed for seafaring courses, so check early"],
+  earlyRoles: ["Deck cadet or trainee marine engineer","Junior officer after training and certification"],
+  progression: ["Officer ranks are earned through DG Shipping Certificate of Competency exams (written and oral) plus approved sea service","Deck side: up through Chief Officer to Master (captain)","Engine side: up through the engineer officer grades to Second Engineer and Chief Engineer","Some seafarers later move to shore-based roles"],
+  related: ["Marine Engineer","Naval Architect","Port and Logistics Manager"],
+  earnings: "Pay depends on your rank, ship type, company and time at sea.",
+  roadmap: [
+   {id:"foundation",t:"Build your PCM base",d:"Focus on Physics, Chemistry, Maths and English in school.",s:"School"},
+   {id:"explore",t:"Learn what life at sea involves",d:"Read official maritime resources and talk to a seafarer if you can.",s:"School"},
+   {id:"routes",t:"Choose deck, engine or shore-based",d:"Compare B.Sc Nautical Science, B.Tech Marine Engineering and shore-based options.",s:"Education"},
+   {id:"exams",t:"Plan IMU-CET and medical checks",d:"Read the current IMU notice and DG Shipping medical standards.",s:"Admission"},
+   {id:"skills",t:"Prepare for life onboard",d:"Work on fitness, English and basic safety awareness.",s:"Skills"},
+   {id:"experience",t:"Plan your first sea training",d:"Learn how cadet training and certification work at your chosen institute.",s:"Career"}],
+  src: ["IMU","DGS"]}
+};
+</script>
+<script>
+/* ---------- Placeholder data (Build 1 only) ---------- */
+const CATEGORIES = [
+  { id: "tech",   name: "Technology",       color: "var(--tech)" },
+  { id: "design", name: "Design",           color: "var(--design)" },
+  { id: "sea",    name: "Maritime",         color: "var(--sea)" },
+  { id: "data",   name: "Data & Analytics", color: "var(--data)" },
+];
+const CAREERS = [
+  { key: "AI", name: "AI Engineer",     cat: "tech",   blurb: "Builds systems that learn from data." },
+  { key: "FD", name: "Fashion Designer",cat: "design", blurb: "Creates clothing and accessories." },
+  { key: "MN", name: "Merchant Navy",   cat: "sea",    blurb: "Works on ships that carry global trade." },
+  { key: "DS", name: "Data Scientist",  cat: "data",   blurb: "Finds patterns in data to answer questions." },
+  { key: "UX", name: "UX/UI Designer",  cat: "design", blurb: "Designs apps and websites people enjoy using." },
+];
+
+CAREERS.forEach((c) => { c.trail = TRAILS[c.key]; });   // Build 3: pathway data lives in TRAILS, attached here
+
+/* ---------- State (in memory only, resets on reload) ---------- */
+const state = { category: null, query: "", saved: new Set() };
+const $ = (s) => document.querySelector(s);
+const catOf = (id) => CATEGORIES.find((c) => c.id === id);
+
+/* ---------- Navigation ---------- */
+function go(screen) {
+  document.querySelectorAll(".screen").forEach((el) => el.classList.toggle("active", el.dataset.screen === screen));
+  current = screen;
+  $("#nav").classList.toggle("show", !["welcome", "assessment"].includes(screen));
+  document.querySelectorAll("#nav button").forEach((b) => {
+    if (b.dataset.go === screen) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+  });
+  if (screen === "me") { renderSaved(); renderProfile(); renderAISetting(); }
+  if (screen === "results") renderResults();
+  if (screen === "home" || screen === "progress") { renderLatest(); renderJourney(); }
+  window.scrollTo(0, 0);
+}
+document.addEventListener("click", (e) => {
+  const t = e.target.closest("[data-go]");
+  if (t) go(t.dataset.go);
+});
+
+/* ---------- Explore ---------- */
+const bookmark = '<svg viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linejoin="round"><path d="M6 3h12v18l-6-4-6 4z"/></svg>';
+function careerCard(c, saveable) {
+  const cat = catOf(c.cat);
+  const initials = c.name.split(/[ /]/).map((w) => w[0]).slice(0, 2).join("");
+  const on = state.saved.has(c.name);
+  return `<div class="card career">
+    <div class="tile" style="background:${cat.color}">${initials}</div>
+    <button class="grow open" data-open="${c.name}"><b>${c.name}</b><span class="muted small">${c.blurb}</span></button>
+    ${saveable ? `<button class="save" data-save="${c.name}" aria-pressed="${on}" aria-label="${on ? "Unsave" : "Save"} ${c.name}">${bookmark}</button>` : ""}
+  </div>`;
+}
+function renderExplore() {
+  $("#cats").innerHTML = CATEGORIES.map((c) => {
+    const n = CAREERS.filter((x) => x.cat === c.id).length;
+    return `<button class="cat" data-cat="${c.id}" aria-pressed="${state.category === c.id}"><b>${c.name}</b><span class="muted small">${n} career${n > 1 ? "s" : ""}</span></button>`;
+  }).join("");
+  const q = state.query.trim().toLowerCase();
+  const list = CAREERS.filter((c) => (!state.category || c.cat === state.category) && c.name.toLowerCase().includes(q));
+  $("#careers-title").textContent = state.category ? catOf(state.category).name : "All careers";
+  $("#careers").innerHTML = list.length ? list.map((c) => careerCard(c, true)).join("")
+    : '<div class="card muted">No careers match. Try a different search.</div>';
+}
+$("#search").addEventListener("input", (e) => { state.query = e.target.value; renderExplore(); });
+$("#cats").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-cat]"); if (!b) return;
+  state.category = state.category === b.dataset.cat ? null : b.dataset.cat; // tap again to clear
+  renderExplore();
+});
+$("#careers").addEventListener("click", (e) => {
+  const b = e.target.closest("[data-save]"); if (!b) return;
+  const n = b.dataset.save;
+  state.saved.has(n) ? state.saved.delete(n) : state.saved.add(n);
+  renderExplore();
+});
+
+/* ---------- Assessment: state, storage ---------- */
+const STORE_KEY = "nexup.latestAssessment";
+const asm = { i: 0, answers: [] };          // answers[i] = list of chosen option numbers for question i
+let current = "welcome", careerBack = "explore";
+
+function saveResult(r) { latest = r; try { localStorage.setItem(STORE_KEY, JSON.stringify(r)); } catch (e) { /* storage blocked: result stays in memory only */ } }
+function loadResult() {
+  try {
+    const r = JSON.parse(localStorage.getItem(STORE_KEY));
+    return r && Array.isArray(r.ranking) && r.ranking.length ? r : null;
+  } catch (e) { return null; }
+}
+let latest = loadResult();
+
+/* ---------- Assessment: flow ---------- */
+function startAssessment() {
+  asm.i = 0; asm.answers = QUESTIONS.map(() => []);
+  go("assessment"); renderQuestion();
+}
+function renderQuestion() {
+  const q = QUESTIONS[asm.i], n = QUESTIONS.length, picked = asm.answers[asm.i];
+  $("#q-count").textContent = `Question ${asm.i + 1} of ${n}`;
+  $("#q-bar").style.width = ((asm.i + 1) / n) * 100 + "%";
+  $("#q-next").textContent = asm.i === n - 1 ? "See my matches" : "Next";
+  $("#q-error").hidden = true;
+  const body = $("#q-body");
+  body.innerHTML = `<h2>${q.text}</h2>${q.multi ? '<p class="muted hint">Pick all that apply.</p>' : ""}
+    <div class="opts">${q.opts.map((o, k) => `<button class="opt" data-opt="${k}" aria-pressed="${picked.includes(k)}"><span class="mark ${q.multi ? "sq" : ""}"></span>${o.text}</button>`).join("")}</div>`;
+  body.classList.remove("in"); void body.offsetWidth; body.classList.add("in");   // replay slide-in
+}
+function pickOption(k) {
+  const q = QUESTIONS[asm.i], sel = asm.answers[asm.i];
+  asm.answers[asm.i] = q.multi ? (sel.includes(k) ? sel.filter((x) => x !== k) : [...sel, k]) : [k];
+  document.querySelectorAll(".opt").forEach((b, idx) => b.setAttribute("aria-pressed", asm.answers[asm.i].includes(idx)));
+  $("#q-error").hidden = true;
+}
+function nextQuestion() {
+  if (!asm.answers[asm.i] || !asm.answers[asm.i].length) { $("#q-error").hidden = false; return; }
+  if (asm.i === QUESTIONS.length - 1) { saveResult(calculateResult(asm.answers)); go("results"); return; }
+  asm.i++; renderQuestion(); window.scrollTo(0, 0);
+}
+function prevQuestion() { if (asm.i > 0) { asm.i--; renderQuestion(); } else go("home"); }
+
+/* ---------- Assessment: scoring ---------- */
+const bandFor = (pct) => (pct >= 65 ? "Strong Match" : pct >= 45 ? "Good Match" : "Potential Match");
+
+function calculateResult(answers) {
+  const scores = {}, max = {};
+  CAREERS.forEach((c) => { scores[c.name] = 0; max[c.name] = 0; });
+  QUESTIONS.forEach((q, qi) => {
+    const chosen = answers[qi] || [];
+    CAREERS.forEach((c) => {
+      const pts = (k) => q.opts[k].s[c.key] || 0;
+      max[c.name] += Math.max(...q.opts.map((_, k) => pts(k)));             // best possible for this career
+      if (chosen.length) scores[c.name] += chosen.reduce((sum, k) => sum + pts(k), 0) / chosen.length;
+    });
+  });
+  const ranking = CAREERS.map((c, order) => ({ name: c.name, score: scores[c.name], order, pct: Math.round((scores[c.name] / max[c.name]) * 100) }))
+    .sort((a, b) => b.pct - a.pct || b.score - a.score || a.order - b.order)   // ties: raw score, then original order
+    .map((x) => ({ name: x.name, pct: x.pct, band: bandFor(x.pct) }));
+  const percentages = {}; ranking.forEach((x) => { percentages[x.name] = x.pct; });
+  Object.keys(scores).forEach((k) => { scores[k] = Math.round(scores[k] * 10) / 10; });
+  return { date: new Date().toISOString(), answers, scores, percentages, ranking, top: ranking.slice(0, 3).map((x) => x.name) };
+}
+// Up to 3 reasons: tags of the student's answers that gave this career 3+ points
+function whyMatches(c, answers) {
+  const found = [];
+  QUESTIONS.forEach((q, qi) => (answers[qi] || []).forEach((k) => {
+    const o = q.opts[k], p = (o && o.s[c.key]) || 0;
+    if (p >= 3 && !found.some((f) => f.why === o.why)) found.push({ why: o.why, p });
+  }));
+  const list = found.sort((a, b) => b.p - a.p).slice(0, 3).map((f) => f.why);
+  return list.length ? list : ["Some overlap with your answers across several questions"];
+}
+
+/* ---------- Results, latest-result cards, career detail ---------- */
+function renderResults() {
+  const list = $("#r-list"), note = $("#r-note");
+  const ranking = latest ? latest.ranking.filter((x) => CAREERS.some((c) => c.name === x.name)) : [];
+  if (!ranking.length) { list.innerHTML = '<div class="card muted">No results yet. Take the assessment to see your matches.</div>'; note.textContent = ""; return; }
+  const cutoff = ranking[Math.min(2, ranking.length - 1)].pct;               // top 3, plus anyone tied with 3rd
+  const card = (x, top) => {
+    const c = CAREERS.find((k) => k.name === x.name);
+    return `<article class="card result ${top ? "top" : ""}">
+      <div class="r-head"><div><h3>${c.name}</h3><span class="tag">${x.band}</span></div><div class="pct">${x.pct}%<small>match</small></div></div>
+      <div class="bar"><i style="width:${x.pct}%"></i></div>
+      <p>${c.blurb}</p>${whySlot(c)}
+      <button class="btn btn-secondary" data-open="${c.name}">Explore Career</button></article>`;
+  };
+  const top = ranking.filter((x) => x.pct >= cutoff), rest = ranking.filter((x) => x.pct < cutoff);
+  list.innerHTML = top.map((x) => card(x, true)).join("") + (rest.length ? '<h2 class="section-title" style="margin-bottom:0">Other matches</h2>' + rest.map((x) => card(x, false)).join("") : "");
+  const close = rest.length && cutoff - rest[0].pct <= 3;
+  note.textContent = close ? "Some of your matches are very close, so treat them as roughly equal." : "";
+}
+function renderLatest() {
+  const el = $("#latest"), home = $("#home-result");
+  if (!latest) {
+    el.innerHTML = `<div class="card"><span class="tag">Not started</span><h3 style="margin:8px 0 4px;font-size:19px">Latest Assessment</h3><p class="muted small" style="margin-bottom:12px">Answer 10 quick questions to see career paths that fit you.</p><button class="btn btn-primary" data-start>Take the assessment</button></div>`;
+    home.innerHTML = ""; return;
+  }
+  const date = new Date(latest.date).toLocaleDateString(undefined, { day: "numeric", month: "short", year: "numeric" });
+  el.innerHTML = `<div class="card"><span class="tag">Completed</span><h3 style="margin:8px 0 2px;font-size:19px">Latest Assessment</h3><p class="muted small">${date}</p>
+    <ul class="list">${latest.ranking.slice(0, 3).map((x) => `<li><b style="flex:1">${x.name}</b><span>${x.pct}%</span></li>`).join("")}</ul>
+    <button class="btn btn-secondary" data-results>View all matches</button></div>`;
+  home.innerHTML = `<button class="card action-card" data-results><h3>Your latest matches</h3><p>${latest.top.join(", ")}</p></button>`;
+}
+function toggleSave(name) { state.saved.has(name) ? state.saved.delete(name) : state.saved.add(name); renderExplore(); }
+/* ---------- Build 3: storage, career detail, trail, roadmap ---------- */
+const LS = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* storage blocked: stays in memory */ } },
+};
+let road = LS.get("nexup.roadmapProgress", {});            // { careerKey: { milestoneId: true } }
+if (!road || typeof road !== "object" || Array.isArray(road)) road = {};
+let selected = LS.get("nexup.selectedCareer", null);       // career whose roadmap the student opened
+let lastExplored = LS.get("nexup.lastExploredCareer", null);
+const byName = (n) => CAREERS.find((c) => c.name === n);
+if (!byName(selected)) selected = null;
+let trailCareer = null, trailView = "trail", trailBack = "career";
+
+const ul = (arr) => `<ul class="bul">${arr.map((x) => `<li>${x}</li>`).join("")}</ul>`;
+const sec = (title, body, open) => `<details class="card acc" ${open ? "open" : ""}><summary>${title}</summary><div class="acc-body">${body}</div></details>`;
+const VERIFY = '<p class="verify">Information can change. Verify current details with the official source.</p>';
+const routesHTML = (routes) => routes.map((r) => `<div class="route"><b class="small">${r.label}</b><div class="path">${r.path.map((p) => `<span>${p}</span>`).join("<i>→</i>")}</div></div>`).join("");
+const entranceHTML = (T) => `<ul class="bul">${T.entrance.map((e) => `<li><b>${e.n}</b><br><span class="muted small">${e.d}</span></li>`).join("")}</ul><p class="small">${CHECK}</p>${VERIFY}`;
+
+function roadStats(c) {
+  const done = road[c.key] || {}, list = c.trail.roadmap, n = list.filter((m) => done[m.id]).length;
+  return { n, total: list.length, pct: Math.round((n / list.length) * 100), next: list.find((m) => !done[m.id]) || null };
+}
+// Personalisation: based only on the saved assessment (no class/profile is stored yet)
+function alignNote(c) {
+  const m = latest && latest.ranking.find((x) => x.name === c.name);
+  if (!m) return `Take the assessment to see how this path lines up with your answers.<div style="margin-top:10px"><button class="btn btn-secondary" data-start>Take the assessment</button></div>`;
+  const lead = m.pct >= 45 ? "Your responses show stronger alignment with this path." : "Your responses show some overlap with this path. Other paths may align more closely.";
+  return `${lead} What stood out: ${whyMatches(c, latest.answers || []).join("; ")}.`;
+}
+
+function renderCareer(name) {
+  const c = byName(name); if (!c) { go("explore"); return; }
+  lastExplored = name; LS.set("nexup.lastExploredCareer", name);
+  const T = c.trail, cat = catOf(c.cat), on = state.saved.has(name), m = latest && latest.ranking.find((x) => x.name === name);
+  const related = T.related.map((r) => byName(r) ? `<button class="chip" data-open="${r}">${r}</button>` : `<span class="chip">${r}</span>`).join("");
+  const sources = T.src.map((k) => SRC[k]).map((x) => `<li><b>${x.name}</b><br><span class="muted small">${x.type}. Last checked 2026. ${x.basis === "primary" ? "Read on the official site." : "Confirmed through education or government portals quoting the official source. Please verify on the official site."}</span>${x.note ? `<br><span class="muted small">${x.note}</span>` : ""}${x.url ? `<br><a class="small" href="${x.url}" target="_blank" rel="noopener">${x.url.replace("https://", "")}</a>` : ""}</li>`).join("");
+  $("#career-body").innerHTML = `
+    <div class="card career" style="margin-bottom:14px"><div class="tile" style="background:${cat.color}">${c.name.split(/[ /]/).map((w) => w[0]).slice(0, 2).join("")}</div>
+      <div class="grow"><h1 style="font-size:24px;margin-bottom:6px">${c.name}</h1><span class="tag">${cat.name}</span> ${m ? `<span class="tag">${m.pct}% match</span>` : ""}</div></div>
+    <p style="font-size:17px">${c.blurb}</p>
+    ${m ? '<p class="muted small" style="margin-top:6px">Match % is an indicator based on your responses, not a prediction of your future.</p>' : ""}
+    ${m ? whySlot(c) : ""}
+    <button class="btn btn-primary" style="margin:16px 0" data-trail="${name}">Explore Career Trail</button>
+    <div class="stack">
+    ${sec("What this career involves", `<p>${T.overview}</p>${ul(T.involves)}`, true)}
+    ${sec("Skills that matter", ul(T.skills))}
+    ${sec("Useful school subjects", ul(T.subjects))}
+    ${sec("Education and courses", ul(T.education) + VERIFY)}
+    ${sec("Entrance exams and admission", entranceHTML(T))}
+    ${sec("Example institutions", `<ul class="bul">${T.institutions.map((i) => `<li><b>${i.n}</b> <span class="muted small">(${i.k})</span></li>`).join("")}</ul>${VERIFY}`)}
+    ${sec("Career progression", `<b class="small">Early roles</b>${ul(T.earlyRoles)}<b class="small">Growing further</b>${ul(T.progression)}`)}
+    ${sec("Other routes", routesHTML(T.routes) + '<p class="small muted">These are examples. Other routes may also be available.</p>')}
+    ${sec("Related careers", `<div class="chips">${related}</div>`)}
+    ${sec("Earning information", `<p>${T.earnings}</p><ul class="bul"><li>Entry level: varies by role, employer, location and skills</li><li>Experienced: varies significantly by specialisation and industry</li></ul><p class="small muted">Earnings are approximate and can vary significantly. They are not a guarantee.</p>`)}
+    ${sec("Sources", `<ul class="bul">${sources}</ul>${VERIFY}`)}
+    </div>
+    <button class="btn ${on ? "btn-secondary" : "btn-primary"}" style="margin-top:16px" data-dsave="${name}">${on ? "Saved. Tap to remove" : "Save career"}</button>`;
+}
+function openCareer(name) { if (current !== "career") careerBack = current; renderCareer(name); go("career"); }
+
+/* ---------- Profile (current class only) ---------- */
+const CLASSES = { "9": "Class 9", "10": "Class 10", "11": "Class 11", "12": "Class 12", other: "Other" };
+let profile = LS.get("nexup.profile", {});                 // { classLevel: "12" }
+if (!profile || typeof profile !== "object" || !CLASSES[profile.classLevel]) profile = {};
+function setClass(v) { if (!CLASSES[v]) return; profile = { classLevel: v }; LS.set("nexup.profile", profile); renderProfile(); }
+function renderProfile() {
+  $("#profile-class").textContent = profile.classLevel ? `Current Class: ${CLASSES[profile.classLevel]}` : "Current class not set";
+  $("#class-options").innerHTML = Object.keys(CLASSES).map((k) => `<button class="chip" data-class="${k}" aria-pressed="${profile.classLevel === k}">${CLASSES[k]}</button>`).join("");
+}
+// Trail steps (0-based) that matter most at each stage, and a plain-language note. No facts are added here.
+const FOCUS = { "9": [1], "10": [1, 2], "11": [2, 3, 4], "12": [3] };
+const STAGE_NOTE = {
+  "9": "You are in Class 9, a good time to explore. Focus on building your foundation, trying things out and keeping your options open.",
+  "10": "You are in Class 10, a good time for subject and pathway planning. Look at the foundation and education steps to see which subjects matter for this path.",
+  "11": "You are in Class 11, a good time to build skills and plan your courses and entrance exams. Read the education and entrance steps early and start on skills alongside school.",
+  "12": "You are in Class 12, so entrance and admission come first. Check the current official requirements for your shortlisted routes and use the roadmap for your immediate next steps.",
+  other: "You chose Other. The steps below are in order, so start from whichever one matches where you are now.",
+};
+function stageNote() {
+  const k = profile.classLevel;
+  if (!k) return `<p class="muted">Your current stage hasn't been added yet.</p><div style="margin-top:10px"><button class="btn btn-secondary" data-go="me">Add your class</button></div>`;
+  return `<div class="stage"><b>Current Class: ${CLASSES[k]}</b><p style="margin-top:4px">${STAGE_NOTE[k]}</p></div>`;
+}
+
+/* ---------- Career Trail + Roadmap screen ---------- */
+function trailHTML(c) {
+  const T = c.trail;
+  const steps = [
+    ["Where you are now", `<div class="ai-slot" data-ai-slot="trail" data-career="${c.name}">${stageNote()}<p style="margin-top:10px">${alignNote(c)}</p>${aiBlock("trail", c)}</div>`],
+    ["Build your foundation", `<b class="small">School subjects</b>${ul(T.subjects)}<b class="small">Foundation to build</b>${ul(T.foundation)}`],
+    ["Choose your education path", ul(T.education) + routesHTML(T.routes) + VERIFY],
+    ["Entrance and admission", entranceHTML(T)],
+    ["Build career skills", `<b class="small">Skills that matter</b>${ul(T.skills)}<b class="small">Projects and experience</b>${ul(T.buildSkills)}`],
+    ["Enter the field", ul(T.earlyRoles)],
+    ["Grow further", ul(T.progression)],
+  ];
+  return `<ol class="tl">${steps.map((s, i) => { const f = (FOCUS[profile.classLevel] || []).includes(i); return `<li class="step"><span class="num">${i + 1}</span>${sec(s[0] + (f ? ' <span class="tag">Focus now</span>' : ""), s[1], i === 0 || (f ? true : (!profile.classLevel && i < 2)))}</li>`; }).join("")}</ol>
+    <p class="muted small" style="margin:16px 0">This is one possible route, not the only one.</p>
+    <button class="btn btn-primary" data-view="roadmap">See your roadmap</button>`;
+}
+function roadHTML(c) {
+  const st = roadStats(c), done = road[c.key] || {};
+  return `<div class="card"><span class="muted small">Roadmap progress</span><div class="big">${st.pct}%</div>
+    <div class="bar" style="margin:6px 0 10px"><i style="width:${st.pct}%"></i></div>
+    <b>${st.n} of ${st.total} milestones completed</b>
+    <p class="small muted" style="margin-top:4px">${st.next ? `Next: ${st.next.t}` : "All milestones marked done."}</p></div>
+    ${nextStepCard(c)}
+    <ul class="ms">${c.trail.roadmap.map((m) => `<li class="ms-row ${done[m.id] ? "done" : ""}">
+      <button class="ms-check" data-ms="${m.id}" aria-pressed="${!!done[m.id]}" aria-label="${done[m.id] ? "Mark as not started" : "Mark as done"}: ${m.t}">✓</button>
+      <div><b>${m.t}</b> <span class="tag">${m.s}</span><div class="muted small">${m.d}</div></div>
+      <span class="ms-state">${done[m.id] ? "Done" : "Not started"}</span></li>`).join("")}</ul>
+    <p class="muted small">This roadmap is guidance, not a guarantee. Your own route may look different.</p>`;
+}
+function renderTrail() {
+  const c = trailCareer, tab = (v, t) => `<button class="seg ${trailView === v ? "on" : ""}" data-view="${v}" aria-pressed="${trailView === v}">${t}</button>`;
+  $("#trail-body").innerHTML = `<h1 style="font-size:28px;font-weight:800">${c.name}</h1>
+    <p class="muted">One possible path. Other routes may also be available.</p>
+    <div class="segs">${tab("trail", "Career Trail")}${tab("roadmap", "Roadmap")}</div>
+    ${trailView === "trail" ? trailHTML(c) : roadHTML(c)}`;
+}
+function openTrail(name, view) {
+  const c = byName(name); if (!c) return;
+  trailBack = current === "career" ? "career" : current;
+  trailCareer = c; trailView = view || "trail";
+  selected = name; LS.set("nexup.selectedCareer", name);
+  renderTrail(); go("trail");
+}
+function toggleMilestone(id) {
+  const k = trailCareer.key; road[k] = road[k] || {};
+  if (road[k][id]) delete road[k][id]; else road[k][id] = true;
+  LS.set("nexup.roadmapProgress", road); renderTrail();
+}
+
+/* ---------- Build 4.1: next step, AI setting, AI context (all offline, no network) ---------- */
+
+// "Your Next Step" is decided by NexUp's own roadmap data. It never uses AI.
+const STAGE_ORDER = ["School", "Education", "Admission", "Skills", "Career"];
+const STAGE_FIT = { "9": ["School"], "10": ["School", "Education"], "11": ["Education", "Admission", "Skills"], "12": ["Admission", "Education"] };
+function nextStep(name) {
+  const c = byName(name || selected);
+  if (!c) return { state: "none", title: "Explore a career", action: "Explore a career to start building your roadmap.", why: "Your roadmap starts when you open a Career Trail.", milestoneId: null };
+  const st = roadStats(c);
+  if (!st.next) return { state: "complete", title: "Roadmap complete", action: "You have finished every milestone on this roadmap. Look back over it, and re-check the official websites for current requirements before you decide what to do next.", why: "Admission details change over time, so a fresh check is worthwhile.", milestoneId: null };
+  const m = st.next, k = profile.classLevel;
+  const lead = st.n === 0 ? "This is the first step on your roadmap." : `You have completed ${st.n} of ${st.total} steps, and this is the next one.`;
+  let fit = "";                                                   // class only changes the wording, never the milestone
+  if (!k) fit = "Add your class in My NexUp to see how this fits your stage.";
+  else if (STAGE_FIT[k]) {
+    const idx = STAGE_ORDER.indexOf(m.s), ids = STAGE_FIT[k].map((x) => STAGE_ORDER.indexOf(x));
+    fit = idx < Math.min(...ids) ? "It builds the base for the later steps, so it is worth finishing."
+      : idx > Math.max(...ids) ? `It comes a little later for ${CLASSES[k]}, but it helps to know about it now.`
+      : `It suits where you are in ${CLASSES[k]}.`;
+  }
+  return { state: st.n === 0 ? "start" : "progress", title: m.t, action: m.d, why: `${lead} ${fit}`.trim(), milestoneId: m.id };
+}
+
+// Personalised explanations setting (default OFF, stored as a boolean, no account needed)
+let aiConsent = LS.get("nexup.aiConsent", false) === true;
+function setAIConsent(v) { aiConsent = v === true; LS.set("nexup.aiConsent", aiConsent); renderAISetting(); }
+function renderAISetting() { $("#ai-label").textContent = aiConsent ? "On" : "Off"; $("#ai-toggle").setAttribute("aria-checked", aiConsent); }
+
+// The smallest non-identifying summary a future AI request would need. No name, contact, location or raw answers.
+function buildAIContext(kind, name) {
+  const c = byName(name || selected);
+  if (!["why_match", "trail", "next_step"].includes(kind) || !c) return null;
+  const rank = latest && latest.ranking ? latest.ranking.findIndex((x) => x.name === c.name) : -1;
+  const m = rank >= 0 ? latest.ranking[rank] : null, T = c.trail;
+  const ctx = { kind, classLevel: profile.classLevel || null, careerKey: c.key };
+  if (kind !== "next_step") {
+    ctx.match = m ? { pct: m.pct, band: m.band, rank: rank + 1, of: latest.ranking.length } : null;
+    ctx.reasons = m ? whyMatches(c, latest.answers || []) : [];     // reason labels only
+  }
+  if (kind === "trail") ctx.trail = { subjects: T.subjects, education: T.education, entrance: T.entrance.map((e) => e.n), skills: T.skills, buildSkills: T.buildSkills, earlyRoles: T.earlyRoles, progression: T.progression };
+  if (kind === "next_step") {
+    const st = roadStats(c), done = road[c.key] || {};
+    ctx.roadmap = { n: st.n, total: st.total, done: T.roadmap.filter((x) => done[x.id]).map((x) => ({ id: x.id, title: x.t })), next: st.next ? { id: st.next.id, title: st.next.t, stage: st.next.s } : null };
+  }
+  return JSON.parse(JSON.stringify(ctx));                           // plain copy, so nothing can change the app's data
+}
+function staticFallback(kind, name) {
+  const c = byName(name || selected);
+  if (!c) return kind === "next_step" ? nextStep(null) : null;
+  if (kind === "why_match") return { reasons: latest && latest.ranking.some((x) => x.name === c.name) ? whyMatches(c, latest.answers || []) : [] };
+  if (kind === "trail") return { stageNote: STAGE_NOTE[profile.classLevel] || null };
+  return nextStep(c.name);
+}
+// ---- Build 4.3: connection to the deployed Supabase Edge Function "personalize" ----
+// Fill in these two PUBLIC values from your Supabase dashboard: the Project URL and the publishable (or anon) key.
+// NEVER put the Gemini key or any secret here. While they are empty, the AI buttons stay hidden and nothing is sent.
+const AI_CONFIG = { url: "https://xujfmnrnrwxwihnaxehr.supabase.co", key: "", timeoutMs: 22000 };   // url example: "https://abcdxyz.supabase.co" (the function itself stops waiting Gemini at 20 s)
+const aiBase = () => String(AI_CONFIG.url || "").trim().replace(/\/+$/, "");
+const aiReady = () => aiConsent === true && /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(aiBase()) && String(AI_CONFIG.key || "").length > 20;
+
+// Replies are checked again here, so a malformed answer can never reach the screen.
+const AI_SHAPES = {
+  why_match: (d) => d && typeof d.headline === "string" && typeof d.body === "string" && Array.isArray(d.highlights) && d.highlights.every((x) => typeof x === "string"),
+  trail: (d) => d && typeof d.intro === "string" && Array.isArray(d.focus_steps) && d.focus_steps.every((x) => x && Number.isInteger(x.step) && x.step >= 1 && x.step <= 7 && typeof x.note === "string"),
+  next_step: (d) => d && typeof d.action === "string" && typeof d.why === "string" && (d.milestoneId === null || typeof d.milestoneId === "string"),
+};
+// Never throws. Any problem returns the deterministic fallback, and OFF / not configured / offline make no network request.
+async function requestPersonalization(kind, name) {
+  const ctx = buildAIContext(kind, name), fallback = staticFallback(kind, name);
+  const out = (source, reason, data) => ({ source, reason, kind, ctx, data });
+  if (!aiReady()) return out("fallback", aiConsent ? "not_configured" : "consent_off", fallback);
+  if (!ctx || !AI_SHAPES[kind]) return out("fallback", "no_context", fallback);
+  if (typeof navigator !== "undefined" && navigator.onLine === false) return out("fallback", "offline", fallback);
+  const headers = { "Content-Type": "application/json", apikey: AI_CONFIG.key };
+  if (!String(AI_CONFIG.key).startsWith("sb_publishable_")) headers.Authorization = "Bearer " + AI_CONFIG.key;   // legacy anon keys are JWTs
+  const ctl = new AbortController(), timer = setTimeout(() => ctl.abort(), AI_CONFIG.timeoutMs);
+  try {
+    const res = await fetch(aiBase() + "/functions/v1/personalize", { method: "POST", headers, body: JSON.stringify(ctx), signal: ctl.signal });
+    const j = await res.json();
+    if (!res.ok || !j || j.ok !== true || j.kind !== kind) return out("fallback", "error", fallback);
+    const next = kind === "next_step" ? (ctx.roadmap.next ? ctx.roadmap.next.id : null) : null;
+    if (!AI_SHAPES[kind](j.data) || (kind === "next_step" && j.data.milestoneId !== next)) return out("fallback", "invalid_response", fallback);
+    return out("gemini", "ok", j.data);
+  } catch (e) { return out("fallback", e && e.name === "AbortError" ? "timeout" : "network", fallback); }
+  finally { clearTimeout(timer); }
+}
+
+// Small saved cache so a tap is never repeated for the same data (key changes whenever class, result or progress changes).
+const aiHash = (t) => { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return (h >>> 0).toString(36); };
+const aiKeyOf = (ctx) => (ctx ? ctx.kind + "|" + ctx.careerKey + "|" + aiHash(JSON.stringify(ctx)) : null);
+function aiCacheGet(k) { const all = LS.get("nexup.aiCache", {}); return all && typeof all === "object" && k && all[k] && all[k].data ? all[k].data : null; }
+function aiCachePut(k, data) {
+  let all = LS.get("nexup.aiCache", {}); if (!all || typeof all !== "object" || Array.isArray(all)) all = {};
+  all[k] = { t: Date.now(), data };
+  const keep = {}; Object.keys(all).sort((x, y) => all[y].t - all[x].t).slice(0, 12).forEach((x) => { keep[x] = all[x]; });
+  LS.set("nexup.aiCache", keep);
+}
+
+// Screen output. AI text is always escaped, and it is shown in addition to the static text, never instead of it.
+const esc = (t) => String(t).replace(/[&<>"']/g, (ch) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch]));
+const TRAIL_STEP_NAMES = ["Where you are now", "Build your foundation", "Choose your education path", "Entrance and admission", "Build career skills", "Enter the field", "Grow further"];
+function aiOutHTML(kind, d) {
+  let body;
+  if (kind === "why_match") body = `<b>${esc(d.headline)}</b><p>${esc(d.body)}</p><ul class="why">${d.highlights.map((h) => `<li>${esc(h)}</li>`).join("")}</ul>`;
+  else if (kind === "trail") body = `<p>${esc(d.intro)}</p><ul class="why">${d.focus_steps.map((x) => `<li><b>Step ${x.step}, ${TRAIL_STEP_NAMES[x.step - 1]}:</b> ${esc(x.note)}</li>`).join("")}</ul>`;
+  else body = `<p><b>${esc(d.action)}</b></p><p class="muted small">${esc(d.why)}</p>`;
+  return `<div class="ai-out"><span class="tag">Personalised with AI</span>${body}<p class="muted small">Written from your NexUp data. Check official sources for current details.</p></div>`;
+}
+const aiButton = (kind, name, label) => `<button class="btn btn-secondary" data-ai-kind="${kind}" data-career="${name}">${label}</button>`;
+function aiBlock(kind, c) {          // saved AI text if we have it, otherwise the button; nothing at all when OFF or not configured
+  if (!aiReady()) return "";
+  const ctx = buildAIContext(kind, c.name);
+  if (!ctx || (kind === "why_match" && !ctx.match)) return "";
+  const hit = aiCacheGet(aiKeyOf(ctx));
+  return hit && AI_SHAPES[kind](hit) ? aiOutHTML(kind, hit) : `<div class="ai-out">${aiButton(kind, c.name, "Personalise this")}</div>`;
+}
+async function runAI(btn) {
+  const kind = btn.dataset.aiKind, name = btn.dataset.career, box = btn.closest(".ai-out");
+  if (btn.disabled || !box) return;
+  btn.disabled = true;
+  box.innerHTML = '<p class="muted small" role="status">Writing your personalised explanation. This can take up to 20 seconds.</p>';
+  const r = await requestPersonalization(kind, name);
+  if (r.source === "gemini") { const k = aiKeyOf(r.ctx); if (k) aiCachePut(k, r.data); }
+  if (!box.isConnected) return;      // the screen was redrawn meanwhile; a saved answer shows on the next draw
+  if (r.source === "gemini") box.outerHTML = aiOutHTML(kind, r.data);
+  else box.innerHTML = `<p class="muted small" role="status">A personalised explanation isn't available right now. The explanation above still applies.</p>${aiButton(kind, name, "Try again")}`;
+}
+
+// Slots: each wraps content that already works without AI. Build 4.3 adds the optional AI block to each one.
+const whySlot = (c) => `<div class="ai-slot" data-ai-slot="why_match" data-career="${c.name}"><b class="small">Why it matches</b><ul class="why">${whyMatches(c, (latest && latest.answers) || []).map((w) => `<li>${w}</li>`).join("")}</ul>${aiBlock("why_match", c)}</div>`;
+function nextStepCard(c) {
+  const ns = nextStep(c.name);
+  return `<div class="card next ai-slot" data-ai-slot="next_step" data-career="${c.name}"><span class="tag">Your Next Step</span><h3>${ns.title}</h3><p>${ns.action}</p><p class="muted small">${ns.why}</p>${aiBlock("next_step", c)}</div>`;
+}
+
+/* ---------- Home + Progress: journey cards ---------- */
+function renderJourney() {
+  const c = selected && byName(selected), home = $("#home-journey"), pr = $("#road-progress");
+  const kids = [...document.querySelector('[data-screen="progress"]').children];
+  const hideDemo = (on) => { $("#home-prog-title").hidden = on; $("#home-prog").hidden = on; kids.slice(kids.indexOf($("#latest")) + 1).forEach((k) => { k.hidden = on; }); };
+  if (!c) { home.innerHTML = ""; pr.innerHTML = ""; hideDemo(false); return; }
+  const st = roadStats(c);
+  home.innerHTML = `<div class="card journey"><span class="tag">Continue Your Journey</span><h3>${c.name}</h3>
+    <p class="muted small">${st.n} of ${st.total} milestones completed</p>
+    <p class="small" style="margin-top:6px"><b>Next:</b> ${nextStep(c.name).title}</p><div class="bar"><i style="width:${st.pct}%"></i></div>
+    <button class="btn btn-primary" data-roadmap="${c.name}">Continue Roadmap</button></div>`;
+  pr.innerHTML = `<div class="card journey"><h3 style="margin-top:0">Your Career Roadmap</h3><b>${c.name}</b>
+    <div class="big">${st.pct}%</div><div class="bar" style="margin:6px 0 10px"><i style="width:${st.pct}%"></i></div>
+    <b>${st.n} of ${st.total} milestones completed</b>
+    <p class="small muted" style="margin:4px 0 14px">${st.next ? `Next milestone: ${st.next.t}` : "All milestones marked done."}</p>
+    <button class="btn btn-primary" data-roadmap="${c.name}">Continue Roadmap</button></div>`;
+  hideDemo(true);
+}
+
+document.addEventListener("click", (e) => {
+  const c = (sel) => e.target.closest(sel); let b;
+  if (c("[data-start]")) return startAssessment();
+  if (c("[data-results]")) return go("results");
+  if ((b = c("[data-open]"))) return openCareer(b.dataset.open);
+  if ((b = c("[data-dsave]"))) { toggleSave(b.dataset.dsave); return renderCareer(b.dataset.dsave); }
+  if ((b = c(".opt"))) return pickOption(+b.dataset.opt);
+  if (c("#q-next")) return nextQuestion();
+  if (c("#q-back")) return prevQuestion();
+  if ((b = c("[data-trail]"))) return openTrail(b.dataset.trail, "trail");
+  if ((b = c("[data-roadmap]"))) return openTrail(b.dataset.roadmap, "roadmap");
+  if ((b = c("[data-view]"))) { trailView = b.dataset.view; renderTrail(); window.scrollTo(0, 0); return; }
+  if ((b = c("[data-ms]"))) return toggleMilestone(b.dataset.ms);
+  if ((b = c("[data-class]"))) return setClass(b.dataset.class);
+  if (c("#ai-toggle")) return setAIConsent(!aiConsent);
+  if ((b = c("[data-ai-kind]"))) return runAI(b);
+  if (c("#trail-back")) { if (trailBack === "career") { renderCareer(trailCareer.name); go("career"); } else go(trailBack); return; }
+  if (c("#career-back")) return go(careerBack);
+});
+
+/* ---------- My NexUp ---------- */
+function renderSaved() {
+  const list = CAREERS.filter((c) => state.saved.has(c.name));
+  $("#saved").innerHTML = list.length ? list.map((c) => careerCard(c, false)).join("")
+    : '<div class="card muted">No saved careers yet. Tap the bookmark on any career in Explore.</div>';
+}
+
+/* ---------- Theme toggle (Auto → Dark → Light) ---------- */
+const modes = ["auto", "dark", "light"]; let mode = 0;
+$("#theme-toggle").addEventListener("click", () => {
+  mode = (mode + 1) % 3;
+  const m = modes[mode];
+  if (m === "auto") document.documentElement.removeAttribute("data-theme"); else document.documentElement.dataset.theme = m;
+  $("#theme-label").textContent = m[0].toUpperCase() + m.slice(1);
+});
+
+renderExplore();
+renderLatest();
+go("welcome");
+</script>
+</body>
+</html>
