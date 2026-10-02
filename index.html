@@ -946,7 +946,7 @@ function staticFallback(kind, name) {
 // ---- Build 4.3: connection to the deployed Supabase Edge Function "personalize" ----
 // Fill in these two PUBLIC values from your Supabase dashboard: the Project URL and the publishable (or anon) key.
 // NEVER put the Gemini key or any secret here. While they are empty, the AI buttons stay hidden and nothing is sent.
-const AI_CONFIG = { url: "https://xujfmnrnrwxwihnaxehr.supabase.co", key: "", timeoutMs: 22000 };   // url example: "https://abcdxyz.supabase.co" (the function itself stops waiting Gemini at 20 s)
+const AI_CONFIG = { url: "https://xujfmnrnrwxwihnaxehr.supabase.co", key: "sb_publishable_tQHk7G_K7hyB5dW7wAXWUw_5P-FYi1p", timeoutMs: 22000 };   // url example: "https://abcdxyz.supabase.co" (the function itself stops waiting Gemini at 20 s)
 const aiBase = () => String(AI_CONFIG.url || "").trim().replace(/\/+$/, "");
 const aiReady = () => aiConsent === true && /^https:\/\/[a-z0-9-]+\.supabase\.co$/i.test(aiBase()) && String(AI_CONFIG.key || "").length > 20;
 
