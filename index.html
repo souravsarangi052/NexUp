@@ -176,8 +176,8 @@ button.chip{min-height:44px;padding:8px 18px}
 .next p+p{margin-top:6px}
 #career-body .ai-slot{margin-top:14px}
 #ai-toggle[aria-checked="true"] .tag{background:var(--brand);color:var(--brand-ink)}
-.ai-out{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line)}
-.ai-out .tag{margin-bottom:6px}
+.ai-out{margin-top:12px;padding-top:12px;border-top:1px dashed var(--line);overflow-wrap:anywhere}
+.ai-out .tag{display:block;width:fit-content;margin-bottom:6px}
 .ai-out p+p,.ai-out ul{margin-top:6px}
 </style>
 </head>
@@ -915,7 +915,19 @@ function nextStep(name) {
 
 // Personalised explanations setting (default OFF, stored as a boolean, no account needed)
 let aiConsent = LS.get("nexup.aiConsent", false) === true;
-function setAIConsent(v) { aiConsent = v === true; LS.set("nexup.aiConsent", aiConsent); renderAISetting(); }
+let aiConsentGen = 0;
+function setAIConsent(v) {
+  const next = v === true;
+  if (aiConsent && !next) {
+    aiConsentGen++;
+    document.querySelectorAll(".ai-out").forEach((el) => {
+      if (el.querySelector('[role="status"]')) el.remove();
+    });
+  }
+  aiConsent = next;
+  LS.set("nexup.aiConsent", aiConsent);
+  renderAISetting();
+}
 function renderAISetting() { $("#ai-label").textContent = aiConsent ? "On" : "Off"; $("#ai-toggle").setAttribute("aria-checked", aiConsent); }
 
 // The smallest non-identifying summary a future AI request would need. No name, contact, location or raw answers.
@@ -1010,8 +1022,14 @@ async function runAI(btn) {
   const kind = btn.dataset.aiKind, name = btn.dataset.career, box = btn.closest(".ai-out");
   if (btn.disabled || !box) return;
   btn.disabled = true;
+  const gen = aiConsentGen;
   box.innerHTML = '<p class="muted small" role="status">Writing your personalised explanation. This can take up to 20 seconds.</p>';
   const r = await requestPersonalization(kind, name);
+  const hasConsent = aiConsent === true && LS.get("nexup.aiConsent", false) === true;
+  if (!hasConsent || gen !== aiConsentGen) {
+    if (box.isConnected) box.remove();
+    return;
+  }
   if (r.source === "gemini") { const k = aiKeyOf(r.ctx); if (k) aiCachePut(k, r.data); }
   if (!box.isConnected) return;      // the screen was redrawn meanwhile; a saved answer shows on the next draw
   if (r.source === "gemini") box.outerHTML = aiOutHTML(kind, r.data);
